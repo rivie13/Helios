@@ -1,0 +1,4 @@
+# Exclude these large build folders
+Helios/build/
+Helios/build_warehouse/
+Helios/build_robot/
