@@ -4,4 +4,3 @@ __pycache__/
 *.py[cod]
 *$py.class 
 Helios_UI/.coverage
-Helios_UI/.coveragerc

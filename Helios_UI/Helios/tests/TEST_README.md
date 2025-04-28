@@ -15,7 +15,7 @@ Or run specific tests using the included batch file:
 .\run_tests.bat
 ```
 
-For coverage reporting, run:
+For all tests and coverage reporting, run:
 
 ```
 .\run_with_coverage.bat
