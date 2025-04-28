@@ -1,9 +1,11 @@
+# Application dependencies
 PyQt5>=5.15.0
 matplotlib>=3.4.0 
 pywin32>=228 
 
-#dev requirements
+# Test requirements
 pytest==7.4.0
 pytest-qt==4.2.0
 pytest-mock==3.11.1
-coverage==7.3.2 
+coverage==7.3.2
+pytest-cov==4.1.0  # For code coverage reporting
