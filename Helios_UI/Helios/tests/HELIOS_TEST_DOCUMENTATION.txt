@@ -1,0 +1,284 @@
+CIS 4398 PROJECTS IN COMPUTER SCIENCE
+1 | Page 2/24/2024
+
+HELIOS TEST DOCUMENTATION
+
+Table of Contents
+System Overview ..................................................................................................................... 3
+Unit Tests .................................................................................................................................. 4
+Integration Tests....................................................................................................................... 8
+Acceptance Tests................................................................................................................... 10
+
+CIS 4398 PROJECTS IN COMPUTER SCIENCE
+2 | Page 2/24/2024
+
+System Overview
+Helios is a multi-robot simulation control system that allows users to configure, start, and monitor robot simulations in different disaster scenarios such as wildfires, earthquakes, and floods. The application provides a unified interface for controlling these simulations, collecting data from robot sensors, and generating reports on simulation performance.
+
+The system uses a client-server architecture where the main Helios UI application (written in Python with PyQt5) acts as a control center that communicates with simulation environments via socket connections. The application can embed Unity-based simulations within its interface and exchange data through TCP/IP sockets, allowing for real-time monitoring and control of robot activities.
+
+Key components of the Helios system include:
+
+1. Main Application Window: Provides the central control interface with tabbed views for simulation control, sensor monitoring, and data visualization.
+
+2. Socket Communication: Enables bidirectional data exchange between the Helios UI and simulation environments.
+
+3. Simulation Control: Allows users to start, pause, and stop simulations, as well as select different simulation types.
+
+4. Sensor Data Monitoring: Displays real-time data from robot sensors including temperature, humidity, battery level, and position coordinates.
+
+5. Data Collection and Reporting: Records simulation metrics including resolution time and success rate, with options to export data in CSV format or generate PDF reports.
+
+The Helios application also features a modern, customized UI with a custom title bar, specialized dashboard widgets, and sensor data displays that update in real-time as the simulation runs.
+
+This testing document outlines the comprehensive test procedures for verifying that all aspects of the Helios application function correctly, from individual components to end-to-end workflows.
+
+CIS 4398 PROJECTS IN COMPUTER SCIENCE
+3 | Page 2/24/2024
+
+Unit Tests
+Simulation Configuration
+test_simulation_config_structure()
+Test: Verify that the simulation configuration has the expected structure and all required fields
+Input: None (Creates MainWindow instance with patched socket server)
+Result: True if simulations_config exists with expected structure, containing exe_path, title, and hwnd_title for each simulation type
+
+test_wildfire_configuration()
+Test: Verify that the wildfire simulation configuration has valid fields and paths
+Input: None (Creates MainWindow instance with patched socket server)
+Result: True if wildfire configuration exists with title "Wild Fire | Multi-Robot" and the exe_path points to an existing file
+
+UI Components
+test_dashboard_table_direct_creation()
+Test: Verify dashboard table widget creation works correctly
+Input: None
+Result: True if function returns a QWidget containing a layout with a table widget
+
+test_dashboard_widget_creation()
+Test: Verify dashboard widget creation with proper fields
+Input: List of field names (e.g., ["field1", "field2", "field3"])
+Result: True if widget, table, CSV button, and PDF button are created with correct properties
+
+test_create_sensor_data_widget()
+Test: Verify sensor data widget creation and component structure
+Input: None
+Result: True if widget contains expected layout with labels and terminal displays for sensor data
+
+test_dashboard_widget_update_mechanism()
+Test: Verify dashboard widget terminals update when table data changes
+Input: List of field names and simulated data values
+Result: True if terminal text updates correctly when table values are changed
+
+test_dashboard_widget_buttons()
+Test: Verify dashboard widget buttons are configured correctly
+Input: List of field names
+Result: True if Download and Export PDF buttons have correct text and styling
+
+Data Handling
+test_csv_data_insertion()
+Test: Verify simulation data is correctly inserted into CSV file
+Input: Disaster type, robot type, world type, start time, and end time
+Result: True if data is written to CSV with correct format, including calculated resolution time
+
+test_resolution_time_calculation()
+Test: Verify that time difference between start and end is calculated correctly
+Input: Start time string and end time string with known difference (e.g., 30 minutes)
+Result: True if calculated resolution time matches expected value (1800 seconds)
+
+Socket Communication
+test_basic_socket_functionality()
+Test: Verify basic socket command sending works
+Input: None (uses mocked client_socket)
+Result: True if appropriate commands (START, PAUSE, STOP) are sent to the socket
+
+test_socket_server_creation()
+Test: Verify socket server can be created with correct parameters
+Input: None (uses mocked socket)
+Result: True if socket is created and configured to listen on localhost:12345
+
+test_json_message_handling()
+Test: Verify JSON messages from socket are properly processed
+Input: Test data in JSON format with sensor readings
+Result: True if sensor_data_signal is emitted with correct data
+
+MainWindow Features
+test_start_socket_server_success()
+Test: Verify successful socket server startup
+Input: None (uses mocked socket)
+Result: True if socket is created, configured, and starts listening
+
+test_start_socket_server_exception()
+Test: Verify graceful handling of socket server startup failure
+Input: None (socket.bind configured to raise exception)
+Result: True if exception is caught and socket does not crash
+
+test_update_sensor_fields()
+Test: Verify sensor field updates from received data
+Input: Dictionary of sensor data (temperature, humidity, batteryLevel)
+Result: True if table is updated with correct values in correct positions
+
+test_wait_for_socket_connection_timeout()
+Test: Verify socket connection timeout behavior
+Input: Timeout value (20 seconds)
+Result: True if function returns False after timeout period
+
+test_wait_for_socket_connection_success()
+Test: Verify successful socket connection behavior
+Input: Timeout value (20 seconds), client_socket set after first sleep call
+Result: True if function returns True when connection established
+
+Window UI Control
+test_toggle_maximize_restore()
+Test: Verify window maximize/restore toggling works
+Input: None (uses mocked window functions)
+Result: True if showMaximized is called when not maximized and showNormal when maximized
+
+test_mouse_press_event()
+Test: Verify mouse press event handling for window dragging
+Input: Mock event with button type and position
+Result: True if drag_position is set correctly for left button and not for right button
+
+test_mouse_move_event()
+Test: Verify mouse move event handling for window dragging
+Input: Mock event with button state and global position
+Result: True if window.move is called with correct position when drag_position exists
+
+test_mouse_release_event()
+Test: Verify mouse release event resets drag position
+Input: Mock event
+Result: True if drag_position is set to None after release
+
+Reporting Features
+test_export_training_report_pdf()
+Test: Verify PDF report export functionality
+Input: Output file path, simulation name, fields, and table data
+Result: True if document is created with correct data and saved to specified path
+
+test_export_training_report_empty_path()
+Test: Verify PDF export handles empty paths gracefully
+Input: Empty string for path
+Result: True if function returns None without errors
+
+test_export_training_report_missing_images()
+Test: Verify PDF export handles missing image files
+Input: Valid parameters with missing image files
+Result: True if function completes without removing non-existent files
+
+CIS 4398 PROJECTS IN COMPUTER SCIENCE
+7 | Page 2/24/2024
+
+Integration Tests
+Simulation Lifecycle
+test_full_simulation_lifecycle()
+Test: Verify full simulation lifecycle with correct state transitions
+Description: Tests that the simulation can be started, paused, resumed, and stopped with proper state changes and socket communications.
+Input: None (uses mocked components)
+Result: True if all the following occur:
+- start_simulation sets sim_start_time and sends START command
+- pause_simulation sends PAUSE command
+- start_simulation (resume) sends START again
+- stop_simulation is called successfully
+
+UI and Simulation Interaction
+test_ui_simulation_interaction()
+Test: Verify UI inputs correctly control the simulation
+Description: Tests that UI buttons and controls properly trigger corresponding simulation actions.
+Input: None (uses mocked UI components)
+Result: True if all the following occur:
+- select_simulation sets the correct simulation type
+- UI buttons correctly trigger start_simulation, pause_simulation, and stop_simulation methods
+
+UI to Socket Data Flow
+test_ui_to_socket_data_flow_integration()
+Test: Verify UI actions translate to socket communications and data updates
+Description: Tests that UI interactions lead to appropriate socket commands and data flow.
+Input: None (uses mocked components with simulated interactions)
+Result: True if all the following occur:
+- select_simulation changes state and updates button states
+- run_button_handler shows simulation screen
+- stop_simulation sends STOP command and closes socket
+- update_sensor_fields updates table with received data
+
+Socket Data Handling
+test_socket_data_handling_integration()
+Test: Verify incoming socket data is properly processed and updates UI
+Description: Tests that incoming socket data in JSON format is correctly parsed and triggers UI updates.
+Input: Valid and invalid JSON strings
+Result: True if all the following occur:
+- Valid JSON data is parsed and emits sensor_data_signal
+- Invalid JSON data is rejected without crashing
+- Non-JSON data is handled properly
+
+CIS 4398 PROJECTS IN COMPUTER SCIENCE
+9 | Page 2/24/2024
+
+Acceptance Tests
+Application Startup
+AT-001: Verify application starts correctly
+Test: The application window should appear with correct layout upon startup
+Procedure: Launch application via main.py
+Expected Result: Main window displays with correct title bar, tabs, and controls
+Pass/Fail Criteria: Application window appears with all required components
+
+AT-002: Verify simulation options
+Test: Simulation dropdown should show all configured simulations
+Procedure: Open simulation dropdown
+Expected Result: Wildfire, earthquake, and flood simulation options should be available
+Pass/Fail Criteria: All configured simulations appear in the dropdown
+
+Simulation Control
+AT-003: Start simulation test
+Test: Simulation should launch and receive start command when started
+Procedure: Select simulation and click start button
+Expected Result: Simulation window appears embedded in the interface and begins running
+Pass/Fail Criteria: Simulation visible and responding to START command
+
+AT-004: Pause simulation test
+Test: Simulation should pause when pause button is clicked
+Procedure: Click pause during running simulation
+Expected Result: Simulation visibly pauses and stops changing state
+Pass/Fail Criteria: Simulation stops updating but remains visible
+
+AT-005: Resume simulation test
+Test: Simulation should resume after being paused
+Procedure: Click start button after pausing
+Expected Result: Simulation continues from paused state
+Pass/Fail Criteria: Simulation resumes normal operation
+
+AT-006: Stop simulation test
+Test: Simulation should end and data should be saved when stopped
+Procedure: Click stop during running simulation
+Expected Result: Simulation closes and data is recorded in CSV file
+Pass/Fail Criteria: Simulation window closes and data appears in CSV with correct format
+
+Data Visualization
+AT-007: Verify sensor data display
+Test: Sensor data should be displayed in real-time
+Procedure: Run simulation sending various sensor data
+Expected Result: Sensor readings update in dashboard as data is received
+Pass/Fail Criteria: Dashboard displays current values for temperature, humidity, battery level, etc.
+
+AT-008: Test CSV download
+Test: Application should allow downloading sensor data as CSV
+Procedure: Click Download button on dashboard
+Expected Result: CSV file is created with current sensor readings
+Pass/Fail Criteria: Downloaded CSV contains correct column headers and values
+
+AT-009: Test PDF report generation
+Test: Application should generate PDF reports of simulation results
+Procedure: Click Export PDF button on dashboard
+Expected Result: PDF report created with graphs and data tables
+Pass/Fail Criteria: PDF contains simulation details, sensor data, and performance metrics
+
+Multi-Robot Coordination
+AT-010: Verify multiple robot handling
+Test: Application should handle data from multiple robots
+Procedure: Run multi-robot simulation scenario
+Expected Result: Data from all robots is received and displayed
+Pass/Fail Criteria: Interface shows separate data for each robot ID
+
+AT-011: Test disaster scenario completion
+Test: Application should record successful disaster resolution
+Procedure: Complete a full disaster scenario simulation
+Expected Result: Resolution time is calculated and success status recorded
+Pass/Fail Criteria: CSV data shows completed scenario with resolution time and success status 
