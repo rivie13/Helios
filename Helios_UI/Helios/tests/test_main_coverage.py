@@ -354,7 +354,7 @@ class TestMainWindowCoverage:
         mock_set_long.assert_called_once()
         mock_move.assert_called_once_with(12345, 0, 0, 800, 600, True)
         assert self.window.unity_hwnd == 12345
-        
+    
     def test_create_title_bar(self):
         """Test creation of custom title bar"""
         # Mock required attributes
@@ -389,7 +389,7 @@ class TestMainWindowCoverage:
         self.window.setup_home_menu = MagicMock()
         
         # Mock necessary components
-        with patch('sensor_data.create_dashboard_widget') as mock_create_dash:
+        with patch('main.create_dashboard_widget') as mock_create_dash:
             # Configure mock to return expected values
             mock_dash = MagicMock()
             mock_table = MagicMock()
@@ -423,13 +423,30 @@ class TestMainWindowCoverage:
         self.window.fields = ["temperature", "humidity"]
         self.window.sensor_table = MagicMock()
         
-        # Mock table item values
-        item1 = MagicMock()
-        item1.text.return_value = "25.5"
-        item2 = MagicMock()
-        item2.text.return_value = "60%"
+        # Mock table item values - for each field, we need both column 0 (name) and column 1 (value)
+        # Create enough mock items for the entire operation
+        items = []
+        field_names = ["temperature", "humidity"]
+        field_values = ["25.5", "60%"]
         
-        self.window.sensor_table.item.side_effect = [item1, item2]
+        for name, value in zip(field_names, field_values):
+            name_item = MagicMock()
+            name_item.text.return_value = name
+            
+            value_item = MagicMock()
+            value_item.text.return_value = value
+            
+            items.extend([None, name_item, value_item, None])
+        
+        # Configure the side_effect to return the appropriate item or None
+        def side_effect(row, col):
+            if col == 0:  # Field name column
+                return items[row * 4 + 1]
+            elif col == 1:  # Value column
+                return items[row * 4 + 2]
+            return None
+        
+        self.window.sensor_table.item.side_effect = side_effect
         
         # Mock csv writer
         writer_instance = MagicMock()
