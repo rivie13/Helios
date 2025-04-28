@@ -34,6 +34,65 @@ python main.py
 > **Note:** If you have a different version of Python installed, use the appropriate command (e.g., `python3` or full path to python.exe).
 
 ## 🛠️ Important Setup
+
+NOTE: **IMPORTANT** Make sure you have git lfs installed before you try to add any large files like executables, then make sure your .gitattributes is updated to track these files 
+
+### Git LFS Setup
+
+1. **Install Git LFS**
+   ```bash
+   # Install Git LFS
+   # Windows (with Chocolatey)
+   choco install git-lfs
+
+   # Windows (manual)
+   # Download from https://git-lfs.github.com/ and run installer
+
+   # macOS
+   brew install git-lfs
+
+   # Linux
+   sudo apt-get install git-lfs  # Debian/Ubuntu
+   sudo yum install git-lfs      # CentOS/RHEL
+   ```
+
+2. **Initialize Git LFS in your repository**
+   ```bash
+   git lfs install
+   ```
+
+3. **Track large file types**
+   ```bash
+   # Track executable files
+   git lfs track "*.exe"
+   git lfs track "*.dll"
+   
+   # Track other large file types as needed
+   git lfs track "*.unity3d"
+   git lfs track "*.unitypackage"
+   git lfs track "*.fbx"
+   git lfs track "*.mp4"
+   git lfs track "*.wav"
+   ```
+
+4. **Commit the .gitattributes file**
+   ```bash
+   git add .gitattributes
+   git commit -m "Configure Git LFS tracking"
+   ```
+
+5. **Add and commit large files normally**
+   ```bash
+   git add path/to/large/file.exe
+   git commit -m "Add large file"
+   git push
+   ```
+
+6. **Verify tracked files**
+   ```bash
+   git lfs ls-files
+   ```
+
 Make sure all paths for your Unity build files are correct for your device.
 
 Update the CSV path in `insert_data.py` and `table.py` to point to the dashboard_data.csv in your project:
