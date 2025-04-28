@@ -1,7 +1,8 @@
 import csv
 from datetime import datetime
 
-CSV_PATH = r"C:\Users\mikeg\Documents\Helios_UI\dashboard_data.csv"
+# UPDATE THIS PATH TO THE CORRECT PATH FOR YOUR SYSTEM
+CSV_PATH = r"C:\Users\rivie\Helios\Helios_UI\dashboard_data.csv"
 
 def insert_simulation_data(disaster_type, robot_type, world_type, start_time, stop_time):
     # Calculate resolution time in seconds

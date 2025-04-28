@@ -40,14 +40,16 @@ class MainWindow(QMainWindow):
         self.server_socket   = None
 
         self.simulations_config = {
+            # UPDATE THIS PATH TO THE CORRECT PATH FOR YOUR SYSTEM
             "wildfire": {
-                "exe_path": r"C:\Users\mikeg\Documents\Helios_UI\Helios_UI\Helios\build_warehouse\RoboticsNav2SLAMExample.exe",
+                "exe_path": r"C:\Users\rivie\Helios\Helios_UI\Helios\build_warehouse\RoboticsNav2SLAMExample.exe",
                 "title": "Wild Fire | Multi-Robot",
                 "hwnd_title": "RoboticsNav2SLAMExample"
             },
             "earthquake": {"exe_path": os.path.abspath("build/UnityHelios.exe"),
                            "title": "Earthquake | Single-Robot", "hwnd_title": "UnityHelios"},
-            "flood": {"exe_path": os.path.abspath(r"C:\Users\mikeg\Documents\Helios_UI\Helios_UI\Helios\build_robot\Helios.exe"),
+            # UPDATE THIS PATH TO THE CORRECT PATH FOR YOUR SYSTEM
+            "flood": {"exe_path": os.path.abspath(r"C:\Users\rivie\Helios\Helios_UI\Helios\build_robot\Helios.exe"),
                       "title": "Flood | Single-Robot", "hwnd_title": "Helios"},
             "tornado": {"exe_path": None, "title": "Tornado | Multi-Robot", "hwnd_title": None},
             "search_rescue": {"exe_path": None, "title": "Search & Rescue | Multi-Robot", "hwnd_title": None},

@@ -50,8 +50,9 @@ def create_dashboard_table():
             border-bottom: 1px solid #4a5a73;
         }
     """)
-
-    csv_path = r"C:\Users\mikeg\Documents\Helios_UI\dashboard_data.csv"
+    
+    # UPDATE THIS PATH TO THE CORRECT PATH FOR YOUR SYSTEM
+    csv_path = r"C:\Users\rivie\Helios\Helios_UI\dashboard_data.csv"
 
     try:
         with open(csv_path, newline='') as f:
