@@ -4,13 +4,16 @@ import os
 from unittest.mock import patch, MagicMock
 from PyQt5.QtWidgets import QApplication
 
+# Create a global QApplication that will be used for all tests
+# This needs to happen at module import time, before any tests run
+app = QApplication.instance()
+if app is None:
+    app = QApplication([])
+
 @pytest.fixture(scope="session")
 def qapp():
-    """Create a QApplication instance that will survive the whole test session."""
-    app = QApplication.instance()
-    if app is None:
-        app = QApplication([])
-    yield app
+    """Return the existing QApplication instance."""
+    return app
 
 @pytest.fixture
 def app(qapp):
@@ -53,4 +56,7 @@ def mock_gui_components():
     with patch('PyQt5.QtWidgets.QMainWindow.show', return_value=None):
         with patch('PyQt5.QtWidgets.QMainWindow.setGeometry', return_value=None):
             with patch('PyQt5.QtWidgets.QMainWindow.showMinimized', return_value=None):
-                yield 
+                with patch('PyQt5.QtWidgets.QWidget', return_value=MagicMock()):
+                    with patch('PyQt5.QtWidgets.QVBoxLayout', return_value=MagicMock()):
+                        with patch('PyQt5.QtWidgets.QHBoxLayout', return_value=MagicMock()):
+                            yield 

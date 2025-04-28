@@ -7,14 +7,27 @@ from main import MainWindow
 from sensor_data import create_sensor_data_widget, create_dashboard_widget
 from table import create_dashboard_table
 
+@pytest.fixture(autouse=True)
+def mock_qt_widgets():
+    """Mock all Qt-related widgets for all tests in this module"""
+    with patch('main.QMainWindow'):
+        with patch('main.QTabWidget'):
+            with patch('main.QWidget'):
+                with patch('main.QVBoxLayout'):
+                    with patch('main.QHBoxLayout'):
+                        with patch('main.QGridLayout'):
+                            with patch('main.QLabel'):
+                                with patch('main.QPushButton'):
+                                    yield
+
 class TestUIComponents:
     
-    @patch('main.QTabWidget')
-    @patch('main.QMainWindow.setCentralWidget')
-    def test_main_window_initialization(self, mock_set_central, mock_tab_widget, app):
+    @patch('main.QApplication')
+    def test_main_window_initialization(self, mock_qapp, app):
         """Test that the main window initializes properly"""
         with patch('main.MainWindow.start_socket_server', return_value=None):
-            window = MainWindow()
+            with patch('main.MainWindow.init_tabs', return_value=None):
+                window = MainWindow()
         
         # Check that tabs are created
         assert window.tabs is not None
@@ -25,9 +38,8 @@ class TestUIComponents:
         # Check that unity container is not created yet
         assert not hasattr(window, 'unity_container')
     
-    @patch('main.QTabWidget')
-    @patch('main.QMainWindow.setCentralWidget')
-    def test_tab_creation(self, mock_set_central, mock_tab_widget, app):
+    @patch('main.QApplication')
+    def test_tab_creation(self, mock_qapp, app):
         """Test that tabs are created with correct titles"""
         with patch('main.MainWindow.start_socket_server', return_value=None):
             with patch('main.MainWindow.setup_home_menu'):
@@ -78,9 +90,8 @@ class TestUIComponents:
         mock_table.return_value.setRowCount.assert_called_with(5)
         mock_table.return_value.setColumnCount.assert_called_with(5)
     
-    @patch('main.QTabWidget')
-    @patch('main.QMainWindow.setCentralWidget')
-    def test_home_menu_simulation_buttons(self, mock_set_central, mock_tab_widget, app):
+    @patch('main.QApplication')
+    def test_home_menu_simulation_buttons(self, mock_qapp, app):
         """Test that simulation buttons are created in home menu"""
         with patch('main.MainWindow.start_socket_server', return_value=None):
             with patch('main.MainWindow.setup_home_menu'):
@@ -104,12 +115,12 @@ class TestUIComponents:
     @patch('subprocess.Popen')
     @patch('win32gui.EnumWindows')
     @patch('win32gui.SetParent')
-    @patch('main.QTabWidget')
-    @patch('main.QMainWindow.setCentralWidget')
-    def test_embed_unity_flow(self, mock_set_central, mock_tab_widget, mock_set_parent, mock_enum_windows, mock_popen, app):
+    @patch('main.QApplication')
+    def test_embed_unity_flow(self, mock_qapp, mock_set_parent, mock_enum_windows, mock_popen, app):
         """Test the unity embedding process flow"""
         with patch('main.MainWindow.start_socket_server', return_value=None):
-            window = MainWindow()
+            with patch('main.MainWindow.init_tabs', return_value=None):
+                window = MainWindow()
             
         window.selected_option = "wildfire"
         window.unity_container = MagicMock()
