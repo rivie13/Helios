@@ -9,12 +9,25 @@ cd Helios_UI
 pytest -v
 ```
 
-Or simply run the included batch file:
-powershell:
+Or run specific tests using the included batch file:
 
 ```
-./run_tests.bat
+.\run_tests.bat
 ```
+
+For coverage reporting, run:
+
+```
+.\run_with_coverage.bat
+```
+
+## Test Structure
+
+The tests are organized into the following categories:
+
+- **Unit Tests**: Located in `tests/unit/` - tests individual components in isolation
+- **Integration Tests**: Located in `tests/integration/` - tests interactions between components
+- **Acceptance Tests**: Located in `tests/acceptance/` - tests end-to-end functionality
 
 ## Testing Approach
 
@@ -27,9 +40,22 @@ The tests are designed to verify core functionality while avoiding GUI rendering
 
 ## Test Files
 
+### Main Test Files
 - `test_helios.py`: Tests for core application logic
 - `test_socket_communication.py`: Tests for network communication
 - `test_ui.py`: Tests for UI components
+- `test_main_coverage.py`: Ensures comprehensive test coverage
+
+### Integration Tests
+- `test_simulation_lifecycle.py`: Tests the full simulation lifecycle
+
+## Coverage Reporting
+
+Coverage reports are generated using pytest-cov with configurations specified in `.coveragerc`. Running the `run_with_coverage.bat` script will:
+
+1. Execute all tests with coverage tracking
+2. Generate HTML and terminal reports
+3. Open the HTML report automatically
 
 ## Common Issues
 
@@ -45,4 +71,5 @@ When adding new tests that interact with GUI components:
 1. Add appropriate patches for GUI components
 2. Avoid creating real windows or dialogs
 3. Mock any network operations
-4. Use the provided fixtures in conftest.py 
+4. Use the provided fixtures in conftest.py
+5. Place in the appropriate directory (unit/, integration/, or acceptance/) based on test scope 

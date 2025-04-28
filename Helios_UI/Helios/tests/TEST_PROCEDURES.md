@@ -25,6 +25,22 @@ venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 ```
 
+### 2.3 Test Directory Structure
+```
+Helios/tests/
+├── unit/           # Unit tests for individual components
+├── integration/    # Tests for component interactions
+│   └── test_simulation_lifecycle.py
+├── acceptance/     # End-to-end functionality tests
+├── test_helios.py  # Core application logic tests
+├── test_socket_communication.py  # Network tests
+├── test_ui.py      # UI component tests
+├── test_main_coverage.py  # Coverage verification tests
+├── conftest.py     # Test fixtures and configuration
+├── run_tests.bat   # Script to run main tests
+└── run_with_coverage.bat  # Script to run tests with coverage reporting
+```
+
 ## 3. Unit Testing
 
 ### 3.1 Purpose
@@ -79,7 +95,9 @@ Integration tests verify that different components work together correctly.
 ### 4.3 Test Execution Procedure
 ```bash
 cd Helios_UI
-pytest -v Helios/tests/test_socket_communication.py Helios/tests/test_helios.py
+pytest -v Helios/tests/integration/
+# Or run specific integration tests:
+pytest -v Helios/tests/integration/test_simulation_lifecycle.py
 ```
 
 ## 5. Acceptance Testing
@@ -110,7 +128,10 @@ Acceptance tests verify that the application meets end-user requirements and fun
 | AT-008  | Test PDF report generation | Generate PDF report | Report created with correct data | PDF contains expected graphs and data |
 
 ### 5.3 Test Execution Procedure
-Manual testing following the procedures outlined above.
+```bash
+cd Helios_UI
+pytest -v Helios/tests/acceptance/
+```
 
 ## 6. Test Coverage
 
@@ -122,11 +143,15 @@ Manual testing following the procedures outlined above.
 ### 6.2 Coverage Measurement
 ```bash
 cd Helios_UI
-pytest --cov=Helios Helios/tests/
+# Run coverage using the provided batch file
+.\run_with_coverage.bat
+
+# Or run manually with specific options
+python -m pytest Helios/tests/ --cov=Helios --cov-report=html --cov-report=term --cov-config=.coveragerc
 ```
 
-### 6.3 Current Coverage
-(To be filled in after coverage assessment)
+### 6.3 Coverage Configuration
+Coverage configuration is defined in `.coveragerc` and excludes test files, caches, and other non-application code.
 
 ## 7. Bug Tracking and Reporting
 
@@ -159,6 +184,16 @@ Regression tests should be run:
 - After any significant code changes
 - Before releasing new versions
 - After fixing critical bugs
+
+### 8.4 Regression Test Procedure
+```bash
+cd Helios_UI
+# Run all tests
+python -m pytest
+
+# Or run with coverage to ensure regression hasn't affected test coverage
+.\run_with_coverage.bat
+```
 
 ## 9. Conclusion and Sign-off
 

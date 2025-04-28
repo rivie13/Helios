@@ -7,9 +7,9 @@ import socket
 import json
 import time
 import pytest
-from unittest.mock import patch, MagicMock, call
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout
-from PyQt5.QtCore import Qt
+from unittest.mock import patch, MagicMock, call, mock_open
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel
+from PyQt5.QtCore import Qt, QPoint
 
 # Create QApplication instance before importing anything that might create widgets
 app = QApplication.instance()
@@ -247,4 +247,199 @@ class TestMainWindowCoverage:
         
         # Verify behavior
         assert result is False
-        mock_exists.assert_called_once() 
+        mock_exists.assert_called_once()
+        
+    def test_mouse_press_event(self):
+        """Test mouse press event handling"""
+        # Setup necessary mocks
+        self.window.title_bar = MagicMock()
+        self.window.title_bar.underMouse.return_value = True
+        self.window.frameGeometry = MagicMock()
+        self.window.frameGeometry.return_value.topLeft.return_value = QPoint(50, 50)
+        
+        # Create mock event
+        event = MagicMock()
+        event.button.return_value = Qt.LeftButton
+        event.globalPos.return_value = QPoint(100, 100)
+        
+        # Test method
+        self.window.mousePressEvent(event)
+        
+        # Verify drag position was calculated properly
+        assert self.window.drag_position is not None
+        # The drag position should be the difference between globalPos and top-left
+        # In this case, that's (100,100) - (50,50) = (50,50)
+        assert isinstance(self.window.drag_position, QPoint)
+        
+        # Test right button click (should not set drag position)
+        self.window.drag_position = None
+        event.button.return_value = Qt.RightButton
+        self.window.mousePressEvent(event)
+        assert self.window.drag_position is None
+        
+    def test_mouse_move_event(self):
+        """Test mouse move event handling"""
+        # Setup drag position
+        self.window.drag_position = QPoint(50, 50)
+        self.window.move = MagicMock()
+        
+        # Create mock event
+        event = MagicMock()
+        event.buttons.return_value = Qt.LeftButton
+        event.globalPos.return_value = QPoint(200, 200)
+        
+        # Test method
+        self.window.mouseMoveEvent(event)
+        
+        # Window should move to globalPos() - drag_position
+        # In this case that's (200,200) - (50,50) = (150,150)
+        self.window.move.assert_called_once()
+        
+        # Test when drag position is None
+        self.window.drag_position = None
+        self.window.move.reset_mock()
+        self.window.mouseMoveEvent(event)
+        self.window.move.assert_not_called()
+        
+    def test_mouse_release_event(self):
+        """Test mouse release event handling"""
+        # Setup
+        self.window.drag_position = QPoint(50, 50)
+        
+        # Create mock event
+        event = MagicMock()
+        
+        # Test method
+        self.window.mouseReleaseEvent(event)
+        
+        # Verify drag position was reset
+        assert self.window.drag_position is None
+        
+    @patch('os.path.exists', return_value=True)
+    @patch('subprocess.Popen')
+    @patch('time.sleep')
+    @patch('win32gui.EnumWindows')
+    @patch('win32gui.GetWindowText')
+    @patch('win32gui.SetParent')
+    @patch('win32gui.SetWindowLong')
+    @patch('win32gui.MoveWindow')
+    def test_embed_unity_success(self, mock_move, mock_set_long, mock_set_parent, mock_get_text, 
+                                mock_enum, mock_sleep, mock_popen, mock_exists):
+        """Test successful Unity embedding"""
+        # Setup mocks
+        self.window.selected_option = "wildfire"
+        
+        # Mock finding window by title
+        def mock_enum_callback(callback, result_list):
+            # Simulate finding one window
+            callback(12345, result_list)
+            return True
+            
+        mock_enum.side_effect = mock_enum_callback
+        mock_get_text.return_value = "RoboticsNav2SLAMExample"
+        
+        # Mock unity container
+        self.window.unity_container = MagicMock()
+        self.window.unity_container.rect.return_value.width.return_value = 800
+        self.window.unity_container.rect.return_value.height.return_value = 600
+        self.window.unity_container.winId.return_value.__int__.return_value = 67890
+        
+        # Test method
+        result = self.window.embed_unity()
+        
+        # Verify embedding process
+        assert result is True
+        mock_popen.assert_called_once()
+        mock_set_parent.assert_called_once_with(12345, 67890)
+        mock_set_long.assert_called_once()
+        mock_move.assert_called_once_with(12345, 0, 0, 800, 600, True)
+        assert self.window.unity_hwnd == 12345
+        
+    def test_create_title_bar(self):
+        """Test creation of custom title bar"""
+        # Mock required attributes
+        with patch('main.QPixmap', MagicMock()):
+            with patch('os.path.join', return_value="robot.jpg"):
+                # Test method
+                result = self.window.create_title_bar()
+                
+                # Verify result
+                assert result is not None
+                assert isinstance(result, QWidget)
+                
+                # Check layout
+                layout = result.layout()
+                assert isinstance(layout, QHBoxLayout)
+                
+                # Verify buttons were added (close, minimize, maximize)
+                buttons_found = 0
+                for i in range(layout.count()):
+                    widget = layout.itemAt(i).widget()
+                    if hasattr(widget, 'text') and widget.text() in ["–", "☐", "X"]:
+                        buttons_found += 1
+                
+                assert buttons_found == 3
+                
+    @patch('os.path.join')
+    def test_init_tabs(self, mock_join):
+        """Test initialization of tabs"""
+        # Setup window with required attributes
+        self.window.home_tab = None
+        self.window.tabs = MagicMock()
+        self.window.setup_home_menu = MagicMock()
+        
+        # Mock necessary components
+        with patch('sensor_data.create_dashboard_widget') as mock_create_dash:
+            # Configure mock to return expected values
+            mock_dash = MagicMock()
+            mock_table = MagicMock()
+            mock_csv_btn = MagicMock()
+            mock_pdf_btn = MagicMock()
+            mock_create_dash.return_value = (mock_dash, mock_table, mock_csv_btn, mock_pdf_btn)
+            
+            # Test method
+            self.window.init_tabs()
+            
+            # Verify tabs were added
+            self.window.tabs.addTab.assert_called()
+            assert self.window.tabs.addTab.call_count >= 3  # At least 3 tabs
+            
+            # Verify home menu was setup
+            self.window.setup_home_menu.assert_called_once()
+            
+            # Verify dashboard widget was created
+            mock_create_dash.assert_called_once()
+            
+            # Verify click handlers were connected
+            mock_csv_btn.clicked.connect.assert_called_once()
+            mock_pdf_btn.clicked.connect.assert_called_once()
+    
+    @patch('main.QFileDialog.getSaveFileName', return_value=("test.csv", "CSV Files (*.csv)"))
+    @patch('builtins.open', new_callable=mock_open)
+    @patch('csv.writer')
+    def test_download_csv_success(self, mock_writer, mock_file, mock_get_save):
+        """Test CSV download when user selects a file"""
+        # Setup
+        self.window.fields = ["temperature", "humidity"]
+        self.window.sensor_table = MagicMock()
+        
+        # Mock table item values
+        item1 = MagicMock()
+        item1.text.return_value = "25.5"
+        item2 = MagicMock()
+        item2.text.return_value = "60%"
+        
+        self.window.sensor_table.item.side_effect = [item1, item2]
+        
+        # Mock csv writer
+        writer_instance = MagicMock()
+        mock_writer.return_value = writer_instance
+        
+        # Test method
+        self.window.download_csv()
+        
+        # Verify file operations
+        mock_file.assert_called_once_with("test.csv", 'w', newline='')
+        writer_instance.writerow.assert_called() 
+        # Should write header and 2 data rows
+        assert writer_instance.writerow.call_count == 3 
