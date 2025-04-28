@@ -5,6 +5,21 @@
 ### Install dependencies
 Make sure Python 3 is installed and install required libraries:
 
+#### Setting up a virtual environment (recommended)
+Create and activate a virtual environment to isolate project dependencies:
+
+```bash
+# Create a virtual environment
+python -m venv venv
+
+# Activate the virtual environment
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+# source venv/bin/activate
+```
+
+#### Install required packages
 ```bash
 pip install -r requirements.txt
 ```
