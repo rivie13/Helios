@@ -37,6 +37,11 @@ python main.py
 
 NOTE: **IMPORTANT** Make sure you have git lfs installed before you try to add any large files like executables, then make sure your .gitattributes is updated to track these files 
 
+We already have the .gitattributes file mostly set up for you, you can just add your specific files to the file if needed, or follow the pattern of adding
+path structures.
+
+there are many ways to get git lfs shown below.
+
 ### Git LFS Setup
 
 1. **Install Git LFS**
