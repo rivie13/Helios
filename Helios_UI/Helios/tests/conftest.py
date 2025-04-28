@@ -19,7 +19,9 @@ def qapp():
 def app(qapp):
     """Use the session-level QApplication fixture and process pending events."""
     yield qapp
-    qapp.processEvents()
+    # Check if qapp is an actual QApplication instance before calling processEvents
+    if hasattr(qapp, 'processEvents'):
+        qapp.processEvents()
 
 @pytest.fixture
 def temp_csv_file():
@@ -56,7 +58,4 @@ def mock_gui_components():
     with patch('PyQt5.QtWidgets.QMainWindow.show', return_value=None):
         with patch('PyQt5.QtWidgets.QMainWindow.setGeometry', return_value=None):
             with patch('PyQt5.QtWidgets.QMainWindow.showMinimized', return_value=None):
-                with patch('PyQt5.QtWidgets.QWidget', return_value=MagicMock()):
-                    with patch('PyQt5.QtWidgets.QVBoxLayout', return_value=MagicMock()):
-                        with patch('PyQt5.QtWidgets.QHBoxLayout', return_value=MagicMock()):
-                            yield 
+                yield 

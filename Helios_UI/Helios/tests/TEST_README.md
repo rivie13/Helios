@@ -10,9 +10,10 @@ pytest -v
 ```
 
 Or simply run the included batch file:
+powershell:
 
 ```
-run_tests.bat
+./run_tests.bat
 ```
 
 ## Testing Approach
